@@ -1,41 +1,30 @@
 import { MongoClient } from 'mongodb';
 
+if (!process.env.MONGODB_URI) {
+  throw new Error('Please add your MongoDB URI to .env.local');
+}
+
 const uri = process.env.MONGODB_URI;
 const options = {};
 
-let client: MongoClient | null = null;
-let clientPromise: Promise<MongoClient> | null = null;
+let client: MongoClient;
+let clientPromise: Promise<MongoClient>;
 
-function getClientPromise(): Promise<MongoClient> {
-  if (!uri) {
-    throw new Error('Please add your MongoDB URI to environment variables');
-  }
+if (process.env.NODE_ENV === 'development') {
+  // In development, use a global variable to preserve the connection
+  let globalWithMongo = global as typeof globalThis & {
+    _mongoClientPromise?: Promise<MongoClient>;
+  };
 
-  if (clientPromise) {
-    return clientPromise;
-  }
-
-  if (process.env.NODE_ENV === 'development') {
-    // In development, use a global variable to preserve the connection
-    const globalWithMongo = global as typeof globalThis & {
-      _mongoClientPromise?: Promise<MongoClient>;
-    };
-
-    if (!globalWithMongo._mongoClientPromise) {
-      client = new MongoClient(uri, options);
-      globalWithMongo._mongoClientPromise = client.connect();
-    }
-    clientPromise = globalWithMongo._mongoClientPromise;
-  } else {
-    // In production, create a new client
+  if (!globalWithMongo._mongoClientPromise) {
     client = new MongoClient(uri, options);
-    clientPromise = client.connect();
+    globalWithMongo._mongoClientPromise = client.connect();
   }
-
-  return clientPromise;
+  clientPromise = globalWithMongo._mongoClientPromise;
+} else {
+  // In production, create a new client
+  client = new MongoClient(uri, options);
+  clientPromise = client.connect();
 }
 
-// Export a function that lazily creates the promise
-export default function getClient() {
-  return getClientPromise();
-}
+export default clientPromise;
