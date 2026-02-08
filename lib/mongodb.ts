@@ -3,12 +3,12 @@ import { MongoClient } from 'mongodb';
 const uri = process.env.MONGODB_URI;
 const options = {};
 
-let client: MongoClient;
+let client: MongoClient | null = null;
 let clientPromise: Promise<MongoClient> | null = null;
 
 function getClientPromise(): Promise<MongoClient> {
   if (!uri) {
-    throw new Error('Please add your MongoDB URI to .env.local');
+    throw new Error('Please add your MongoDB URI to environment variables');
   }
 
   if (clientPromise) {
@@ -35,4 +35,7 @@ function getClientPromise(): Promise<MongoClient> {
   return clientPromise;
 }
 
-export default getClientPromise();
+// Export a function that lazily creates the promise
+export default function getClient() {
+  return getClientPromise();
+}
