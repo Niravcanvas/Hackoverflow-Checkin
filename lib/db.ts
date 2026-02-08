@@ -1,7 +1,7 @@
 import clientPromise from './mongodb';  // Changed this line
 import { DBParticipant } from '@/types';
 
-const DB_NAME = process.env.DB_NAME || 'hackathon';
+const DB_NAME = process.env.DB_NAME || 'hackoverflow'; 
 const COLLECTION_NAME = 'participants';
 
 export async function getParticipantByEmail(email: string): Promise<DBParticipant | null> {
