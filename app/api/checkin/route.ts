@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getParticipantByEmail, updateCheckIn } from '@/lib/db';
+import { getParticipantByEmail, getParticipantById, updateCheckIn } from '@/lib/db';
 import { CheckInResponse } from '@/types';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, checkInType } = await request.json();
+    const { email, participantId, checkInType } = await request.json();
     
-    if (!email || !checkInType) {
+    if ((!email && !participantId) || !checkInType) {
       return NextResponse.json<CheckInResponse>(
-        { success: false, message: 'Email and check-in type are required' },
+        { success: false, message: 'Email or Participant ID and check-in type are required' },
         { status: 400 }
       );
     }
@@ -20,7 +20,10 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const participant = await getParticipantByEmail(email);
+    // Get participant by email or ID
+    const participant = participantId 
+      ? await getParticipantById(participantId)
+      : await getParticipantByEmail(email);
     
     if (!participant) {
       return NextResponse.json<CheckInResponse>(
