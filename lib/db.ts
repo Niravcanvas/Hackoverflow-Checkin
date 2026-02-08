@@ -1,11 +1,11 @@
-import getClient from './mongodb';
+import clientPromise from './mongodb';  // Changed this line
 import { DBParticipant } from '@/types';
 
 const DB_NAME = process.env.DB_NAME || 'hackathon';
 const COLLECTION_NAME = 'participants';
 
 export async function getParticipantByEmail(email: string): Promise<DBParticipant | null> {
-  const client = await getClient();
+  const client = await clientPromise;  // Changed this line
   const db = client.db(DB_NAME);
   
   return db.collection<DBParticipant>(COLLECTION_NAME)
@@ -13,7 +13,7 @@ export async function getParticipantByEmail(email: string): Promise<DBParticipan
 }
 
 export async function getParticipantById(participantId: string): Promise<DBParticipant | null> {
-  const client = await getClient();
+  const client = await clientPromise;  // Changed this line
   const db = client.db(DB_NAME);
   
   return db.collection<DBParticipant>(COLLECTION_NAME)
@@ -24,7 +24,7 @@ export async function updateCheckIn(
   participantId: string,
   checkInType: 'collegeCheckIn' | 'labCheckIn'
 ): Promise<boolean> {
-  const client = await getClient();
+  const client = await clientPromise;  // Changed this line
   const db = client.db(DB_NAME);
   
   const result = await db.collection<DBParticipant>(COLLECTION_NAME)
@@ -43,7 +43,7 @@ export async function updateCheckIn(
 }
 
 export async function getAllParticipants(): Promise<DBParticipant[]> {
-  const client = await getClient();
+  const client = await clientPromise;  // Changed this line
   const db = client.db(DB_NAME);
   
   return db.collection<DBParticipant>(COLLECTION_NAME)
