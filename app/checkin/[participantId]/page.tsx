@@ -1,21 +1,18 @@
 'use client';
 
 /**
- * Check-in Page
+ * Check-in Page - Redesigned with Hackoverflow 4.0 Theme
  *
  * @module app/checkin/[participantId]/page
  * @description Participant check-in confirmation page
- *
- * Best Practices:
- * - Uses server actions instead of API routes
- * - Strict typing with no 'any'
- * - Proper loading and error states
  */
 
+import '../../hackoverflow-animations.css';
 import { useEffect, useState, useTransition, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getParticipantByIdAction, collegeCheckInAction } from '@/actions';
 import type { ClientParticipant } from '@/lib/types';
+import Image from 'next/image';
 
 // ============================================================================
 // Types
@@ -29,10 +26,17 @@ type PageState = 'loading' | 'error' | 'ready' | 'success';
 
 function LoadingState() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4" />
-        <p className="text-gray-600 text-lg">Loading participant data...</p>
+    <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center relative overflow-hidden">
+      {/* Background Orb */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-[#FCB216] to-[#E85D24] rounded-full blur-[120px] opacity-[0.1] animate-pulse-glow" />
+      
+      <div className="text-center relative z-10">
+        <div className="w-24 h-24 mx-auto mb-6 relative">
+          <div className="absolute inset-0 border-4 border-t-[#FCB216] border-r-[#E85D24] border-b-[#D91B57] border-l-[#63205F] rounded-full animate-spin" />
+        </div>
+        <p className="text-[rgba(255,255,255,0.8)] text-xl font-semibold tracking-wide">
+          Loading participant data...
+        </p>
       </div>
     </div>
   );
@@ -50,28 +54,38 @@ function ErrorState({
   onGoHome: () => void;
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full text-center">
-        <svg
-          className="w-16 h-16 text-red-500 mx-auto mb-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-          />
-        </svg>
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+    <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Orb */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-[#D91B57] to-[#63205F] rounded-full blur-[120px] opacity-[0.08]" />
+      
+      <div className="bg-[rgba(255,255,255,0.03)] backdrop-blur-[10px] rounded-3xl border border-[rgba(255,255,255,0.1)] p-8 max-w-md w-full text-center relative z-10">
+        {/* Error Icon */}
+        <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#D91B57] to-[#63205F] p-1">
+          <div className="w-full h-full bg-[#0F0F0F] rounded-full flex items-center justify-center">
+            <svg
+              className="w-12 h-12 text-[#D91B57]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <h1 className="text-3xl font-bold text-white mb-4 tracking-wide">
           Participant Not Found
         </h1>
-        <p className="text-gray-600 mb-6">{error}</p>
+        <p className="text-[rgba(255,255,255,0.6)] mb-8 text-lg">{error}</p>
+        
         <button
           onClick={onGoHome}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors"
+          className="w-full px-6 py-4 rounded-full bg-gradient-to-r from-[#FCB216] via-[#E85D24] to-[#D91B57] text-white font-semibold text-lg transition-all duration-300 hover:shadow-[0_20px_40px_rgba(231,88,41,0.4)] hover:-translate-y-1"
         >
           Go to Home
         </button>
@@ -86,46 +100,78 @@ function ErrorState({
 
 function SuccessState({ participant }: { participant: ClientParticipant }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full text-center">
-        <div className="mb-6">
-          <svg
-            className="w-20 h-20 text-green-500 mx-auto"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+    <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Orbs */}
+      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-to-br from-[#FCB216] to-[#E85D24] rounded-full blur-[120px] opacity-[0.1] animate-pulse-glow" />
+      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-[#D91B57] to-[#63205F] rounded-full blur-[120px] opacity-[0.08] animate-pulse-glow" style={{ animationDelay: '2s' }} />
+      
+      <div className="bg-[rgba(255,255,255,0.03)] backdrop-blur-[10px] rounded-3xl border border-[rgba(255,255,255,0.1)] p-8 md:p-12 max-w-2xl w-full text-center relative z-10 animate-fade-in-up">
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <div className="relative w-32 h-32">
+            <Image
+              src="/images/Logo.png"
+              alt="Hackoverflow 4.0"
+              fill
+              className="object-contain"
             />
-          </svg>
+          </div>
         </div>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+
+        {/* Success Icon */}
+        <div className="mb-8">
+          <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-[#FCB216] via-[#E85D24] to-[#D91B57] p-1">
+            <div className="w-full h-full bg-[#0F0F0F] rounded-full flex items-center justify-center">
+              <svg
+                className="w-16 h-16 text-[#FCB216]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#FCB216] via-[#E85D24] to-[#D91B57] bg-clip-text text-transparent tracking-wide">
           Check-in Successful!
         </h1>
-        <p className="text-gray-600 mb-6">Welcome to Hackoverflow 4.0</p>
-
-        <div className="bg-green-50 rounded-lg p-4 mb-6 text-left">
-          <p className="text-sm text-gray-600 mb-1">Name</p>
-          <p className="text-lg font-semibold text-gray-800 mb-3">
-            {participant.name}
-          </p>
-
-          <p className="text-sm text-gray-600 mb-1">Team</p>
-          <p className="text-lg font-semibold text-gray-800 mb-3">
-            {participant.teamName ?? 'N/A'}
-          </p>
-
-          <p className="text-sm text-gray-600 mb-1">Lab Allotted</p>
-          <p className="text-lg font-semibold text-gray-800">
-            {participant.labAllotted ?? 'N/A'}
-          </p>
+        
+        <div className="inline-block px-6 py-2 rounded-full bg-[rgba(231,88,41,0.15)] border border-[rgba(231,88,41,0.4)] mb-8">
+          <span className="text-[#FCB216] text-sm font-semibold tracking-wider uppercase">
+            Welcome to Hackoverflow 4.0
+          </span>
         </div>
 
-        <p className="text-sm text-gray-500">You can close this page now</p>
+        {/* Participant Details */}
+        <div className="bg-[rgba(255,255,255,0.05)] rounded-2xl p-6 md:p-8 mb-8 text-left space-y-6">
+          <div className="border-b border-[rgba(255,255,255,0.1)] pb-4">
+            <p className="text-sm text-[rgba(255,255,255,0.5)] mb-2 uppercase tracking-wider">Name</p>
+            <p className="text-2xl font-bold text-white">{participant.name}</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm text-[rgba(255,255,255,0.5)] mb-2 uppercase tracking-wider">Team</p>
+              <p className="text-lg font-semibold text-white">{participant.teamName ?? 'N/A'}</p>
+            </div>
+
+            <div>
+              <p className="text-sm text-[rgba(255,255,255,0.5)] mb-2 uppercase tracking-wider">Lab Allotted</p>
+              <p className="text-lg font-semibold text-white">{participant.labAllotted ?? 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-[rgba(255,255,255,0.4)] text-sm">
+          You can close this page now
+        </p>
       </div>
     </div>
   );
@@ -198,66 +244,87 @@ export default function CheckInPage() {
 
   // Ready state - show confirmation form
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Confirm Check-in
-          </h1>
-          <p className="text-gray-600">Please verify your information</p>
+    <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Orbs */}
+      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-to-br from-[#FCB216] to-[#E85D24] rounded-full blur-[120px] opacity-[0.08] animate-pulse-glow" />
+      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-[#D91B57] to-[#63205F] rounded-full blur-[120px] opacity-[0.08] animate-pulse-glow" style={{ animationDelay: '2s' }} />
+      
+      {/* Decorative Dots */}
+      <div className="absolute top-20 left-20 w-1 h-1 bg-[#FCB216] rounded-full opacity-40 animate-float" />
+      <div className="absolute top-40 right-32 w-1 h-1 bg-[#E85D24] rounded-full opacity-50 animate-float" style={{ animationDelay: '1s' }} />
+
+      <div className="bg-[rgba(255,255,255,0.03)] backdrop-blur-[10px] rounded-3xl border border-[rgba(255,255,255,0.1)] p-8 md:p-12 max-w-2xl w-full relative z-10 animate-fade-in-up">
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <div className="relative w-24 h-24">
+            <Image
+              src="/images/Logo.png"
+              alt="Hackoverflow 4.0"
+              fill
+              className="object-contain"
+            />
+          </div>
         </div>
 
-        <div className="bg-blue-50 rounded-lg p-6 mb-6">
-          <div className="mb-4">
-            <p className="text-sm text-gray-600 mb-1">Participant ID</p>
-            <p className="text-lg font-mono font-semibold text-gray-800">
-              {participant.participantId}
-            </p>
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-[#FCB216] via-[#E85D24] to-[#D91B57] bg-clip-text text-transparent tracking-wide">
+            Confirm Check-in
+          </h1>
+          <p className="text-[rgba(255,255,255,0.6)] text-lg">Please verify your information</p>
+        </div>
+
+        {/* Participant Details */}
+        <div className="bg-[rgba(255,255,255,0.05)] rounded-2xl p-6 md:p-8 mb-8 space-y-6">
+          <div className="border-b border-[rgba(255,255,255,0.1)] pb-4">
+            <p className="text-sm text-[rgba(255,255,255,0.5)] mb-2 uppercase tracking-wider">Participant ID</p>
+            <p className="text-xl font-mono font-bold text-[#FCB216]">{participant.participantId}</p>
           </div>
 
-          <div className="mb-4">
-            <p className="text-sm text-gray-600 mb-1">Name</p>
-            <p className="text-xl font-bold text-gray-800">{participant.name}</p>
+          <div>
+            <p className="text-sm text-[rgba(255,255,255,0.5)] mb-2 uppercase tracking-wider">Name</p>
+            <p className="text-2xl font-bold text-white">{participant.name}</p>
           </div>
 
-          <div className="mb-4">
-            <p className="text-sm text-gray-600 mb-1">Email</p>
-            <p className="text-gray-800">{participant.email}</p>
-          </div>
-
-          {participant.phone && (
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-1">Phone</p>
-              <p className="text-gray-800">{participant.phone}</p>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm text-[rgba(255,255,255,0.5)] mb-2 uppercase tracking-wider">Email</p>
+              <p className="text-white break-all">{participant.email}</p>
             </div>
-          )}
+
+            {participant.phone && (
+              <div>
+                <p className="text-sm text-[rgba(255,255,255,0.5)] mb-2 uppercase tracking-wider">Phone</p>
+                <p className="text-white">{participant.phone}</p>
+              </div>
+            )}
+          </div>
 
           {participant.teamName && (
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-1">Team</p>
-              <p className="text-gray-800">{participant.teamName}</p>
+            <div>
+              <p className="text-sm text-[rgba(255,255,255,0.5)] mb-2 uppercase tracking-wider">Team</p>
+              <p className="text-lg font-semibold text-white">{participant.teamName}</p>
             </div>
           )}
 
           {participant.institute && (
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-1">Institute</p>
-              <p className="text-gray-800">{participant.institute}</p>
+            <div>
+              <p className="text-sm text-[rgba(255,255,255,0.5)] mb-2 uppercase tracking-wider">Institute</p>
+              <p className="text-white">{participant.institute}</p>
             </div>
           )}
 
           {participant.labAllotted && (
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-1">Lab Allotted</p>
-              <p className="text-gray-800">{participant.labAllotted}</p>
+            <div>
+              <p className="text-sm text-[rgba(255,255,255,0.5)] mb-2 uppercase tracking-wider">Lab Allotted</p>
+              <p className="text-lg font-semibold text-white">{participant.labAllotted}</p>
             </div>
           )}
         </div>
 
         {participant.collegeCheckIn?.status ? (
-          <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 mb-6 text-center">
-            <p className="text-yellow-800 font-semibold">Already Checked In</p>
-            <p className="text-sm text-yellow-700 mt-1">
+          <div className="bg-[rgba(252,178,22,0.1)] border-2 border-[rgba(252,178,22,0.3)] rounded-2xl p-6 mb-8 text-center">
+            <p className="text-[#FCB216] font-bold text-xl mb-2">Already Checked In</p>
+            <p className="text-[rgba(255,255,255,0.6)]">
               Checked in at:{' '}
               {participant.collegeCheckIn.time
                 ? new Date(participant.collegeCheckIn.time).toLocaleString()
@@ -266,11 +333,11 @@ export default function CheckInPage() {
           </div>
         ) : (
           <>
-            <div className="mb-6 text-center">
-              <p className="text-lg font-semibold text-gray-800 mb-2">
+            <div className="mb-8 text-center">
+              <p className="text-2xl font-bold text-white mb-2">
                 Are you this person?
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-[rgba(255,255,255,0.6)]">
                 Click below to confirm and check in
               </p>
             </div>
@@ -278,12 +345,12 @@ export default function CheckInPage() {
             <button
               onClick={handleCheckIn}
               disabled={isPending}
-              className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 px-6 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed text-lg"
+              className="w-full bg-gradient-to-r from-[#FCB216] via-[#E85D24] to-[#D91B57] text-white font-bold py-5 px-8 rounded-full transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-xl hover:shadow-[0_20px_40px_rgba(231,88,41,0.4)] hover:-translate-y-1"
             >
               {isPending ? (
                 <span className="flex items-center justify-center">
                   <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    className="animate-spin -ml-1 mr-3 h-6 w-6 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -312,8 +379,8 @@ export default function CheckInPage() {
         )}
 
         {error && (
-          <div className="mt-4 bg-red-50 border-2 border-red-300 rounded-lg p-3 text-center">
-            <p className="text-red-700 text-sm">{error}</p>
+          <div className="mt-6 bg-[rgba(217,27,87,0.1)] border-2 border-[rgba(217,27,87,0.3)] rounded-2xl p-4 text-center">
+            <p className="text-[#D91B57] font-semibold">{error}</p>
           </div>
         )}
       </div>
