@@ -42,7 +42,8 @@ export default function CheckInPage() {
     setError(null);
     
     try {
-      const res = await fetch(`/api/participant/${participantId}`);
+      // ✅ FIXED: Changed from /api/participant/ to /api/participants/
+      const res = await fetch(`/api/participants/${participantId}`);
       
       if (!res.ok) {
         throw new Error('Participant not found');
