@@ -211,6 +211,3 @@ interface DBParticipant {
 - Client IP extraction for rate limiting
 - No sensitive data exposed to client
 
-## License
-
-MIT
